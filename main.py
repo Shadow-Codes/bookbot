@@ -1,62 +1,38 @@
-def get_word_count(text):
-    words = text.split()
-    return len(words)
+import sys
+
+from stats import count_characters, count_words, sort_dict
 
 
-def get_character_count_dict(string):
-    lowered_string = string.lower()
-    character_count = {}
+def get_book_text(filepath):
+    with open(filepath) as f:
+        content = f.read()
 
-    for char in lowered_string:
-        if not char.isalpha():
-            continue
-
-        if char in character_count:
-            character_count[char] += 1
-        else:
-            character_count[char] = 1
-
-    return character_count
+    return content
 
 
-def sort_on(dict):
-    return dict["count"]
+def main():
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python3 main.py <path_to_book>")
+
+    filepath = sys.argv[1]
+
+    content = get_book_text(filepath)
+    word_count = count_words(content)
+    sorted_counts = sort_dict(count_characters(content))
+
+    print("============ BOOKBOT ============")
+    print(f"Analyzing book found at {filepath}")
+    print("----------- Word Count ----------")
+    print(f"Found {word_count} total words")
+    print("--------- Character Count -------")
+
+    for item in sorted_counts:
+        char, count = item["char"], item["count"]
+        if char.isalpha():
+            print(f"{char}: {count}")
+
+    print("============= END ===============")
 
 
-file_path = ""
-
-try:
-    file_path = input("Enter file path: ").lower()
-
-    with open(file_path) as f:
-        text = f.read()
-
-    word_count = get_word_count(text)
-    character_count = get_character_count_dict(text)
-
-    list_of_dict = []
-
-    for k, v in character_count.items():
-        char_dict = {"char": k, "count": v}
-        list_of_dict.append(char_dict)
-
-    list_of_dict.sort(key=sort_on, reverse=True)
-
-    print(f"--- Begin report of {file_path} ---")
-    print(f"{word_count} words found in the document")
-    print()
-
-    for item in list_of_dict:
-        character = item["char"]
-        char_count = item["count"]
-        print(f"The '{character}' character was found {char_count} times")
-
-    print(f"--- End report ---")
-
-except FileNotFoundError:
-    if file_path == "":
-        print("Please enter the file path")
-    else:
-        print(
-            f"Error: The file '{file_path}' was not found. Please check the file path and try again."
-        )
+if __name__ == "__main__":
+    main()
